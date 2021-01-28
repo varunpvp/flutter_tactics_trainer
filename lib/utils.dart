@@ -1,42 +1,31 @@
 import 'package:chess/chess.dart';
 
-class FullMove {
-  final Move move;
-  final String fen;
-
-  FullMove({
-    this.fen,
-    this.move,
-  });
-}
-
-FullMove makeMove(String fen, dynamic move) {
+dynamic makeMove(String fen, dynamic move) {
   final chess = Chess.fromFEN(fen);
 
   if (chess.move(move)) {
     final fen = chess.fen;
-    return FullMove(
-      fen: fen,
-      move: chess.undo_move(),
-    );
+    final move = chess.undo_move();
+    final san = chess.move_to_san(move);
+
+    return {
+      'fen': fen,
+      'san': san,
+    };
   }
 
   return null;
 }
 
-// FullMove validateMove(String fen, dynamic move, List<String> solution) {
-//
-//   final fullMove = makeMove(fen, move);
-//
-//
-//
-//   if (fullMove == null) {
-//
-//     return null;
-//   }
-//
-//   final san =
-//
-//   if ()
-//
-// }
+dynamic validateMove(String fen, dynamic move, List<String> solution) {
+  final next = makeMove(fen, move);
+
+  if (next != null && next['san'] == solution.first) {
+    return {
+      'fen': next['fen'],
+      'solution': solution.sublist(1),
+    };
+  }
+
+  return null;
+}

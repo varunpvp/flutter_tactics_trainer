@@ -94,13 +94,43 @@ class TacticBoardState extends State<TacticBoard> {
       fen: _fen,
       size: size.width,
       onMove: (move) {
-        final next = makeMove(_fen, {
-          'from': move.from,
-          'to': move.to,
-          'promotion': 'q',
-        });
+        final next = validateMove(
+          _fen,
+          {
+            'from': move.from,
+            'to': move.to,
+            'promotion': 'q',
+          },
+          _solution,
+        );
 
-        if (next != null) {}
+        if (next != null) {
+          setState(() {
+            _fen = next['fen'];
+            _solution = next['solution'];
+          });
+
+          if (_solution.isNotEmpty) {
+            widget.onCorrect();
+
+            Future.delayed(Duration(milliseconds: 300)).then((value) {
+              final computerNext = validateMove(
+                _fen,
+                _solution.first,
+                _solution,
+              );
+
+              setState(() {
+                _fen = computerNext['fen'];
+                _solution = computerNext['solution'];
+              });
+            });
+          } else {
+            widget.onSolve();
+          }
+        } else {
+          widget.onIncorrect();
+        }
       },
     );
   }
