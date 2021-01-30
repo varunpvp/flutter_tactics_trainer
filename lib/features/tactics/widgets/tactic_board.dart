@@ -34,7 +34,7 @@ class TacticBoardState extends State<TacticBoard> {
     _fen = widget.tactic.fen;
     _solution = widget.tactic.solution;
 
-    Future.delayed(Duration(milliseconds: 1000)).then((_) {
+    Future.delayed(Duration(milliseconds: 500)).then((_) {
       final move = makeMove(_fen, widget.tactic.blunderMove);
       setState(() {
         _fen = move['fen'];
@@ -54,6 +54,10 @@ class TacticBoardState extends State<TacticBoard> {
       size: size,
       orientation: getSideToMove(widget.tactic.fen) == 'w' ? 'b' : 'w',
       onMove: (move) {
+        if (_solution.isEmpty) {
+          return;
+        }
+
         final next = validateMove(
           _fen,
           {

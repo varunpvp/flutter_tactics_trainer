@@ -7,6 +7,7 @@ import 'package:http/http.dart' as http;
 import 'package:tactics_trainer_app/core/utils.dart';
 import 'package:tactics_trainer_app/features/tactics/models/tactic.dart';
 import 'package:tactics_trainer_app/features/tactics/widgets/tactic_board.dart';
+import 'package:wakelock/wakelock.dart';
 
 class PlayTacticsPage extends StatefulWidget {
   @override
@@ -23,6 +24,7 @@ class _PlayTacticsPageState extends State<PlayTacticsPage> {
   void initState() {
     _loadTactic();
     _loadTactic();
+    Wakelock.enable();
     super.initState();
   }
 
@@ -86,13 +88,6 @@ class _PlayTacticsPageState extends State<PlayTacticsPage> {
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Expanded(
-                //   child: RaisedButton(
-                //     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-                //     onPressed: () => null,
-                //     child: Text("Show Solution"),
-                //   ),
-                // ),
                 Expanded(
                   child: RaisedButton(
                     materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
@@ -221,6 +216,12 @@ class _PlayTacticsPageState extends State<PlayTacticsPage> {
         ),
       ),
     );
+  }
+
+  @override
+  void dispose() {
+    Wakelock.disable();
+    super.dispose();
   }
 }
 
