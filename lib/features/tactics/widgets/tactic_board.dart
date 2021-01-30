@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_stateless_chessboard/flutter_stateless_chessboard.dart';
 import 'package:tactics_trainer_app/core/utils.dart';
@@ -44,11 +46,12 @@ class TacticBoardState extends State<TacticBoard> {
 
   @override
   Widget build(BuildContext context) {
-    final size = MediaQuery.of(context).size;
+    final media = MediaQuery.of(context).size;
+    final size = min(media.width, media.height);
 
     return Chessboard(
       fen: _fen,
-      size: size.width,
+      size: size,
       orientation: getSideToMove(widget.tactic.fen) == 'w' ? 'b' : 'w',
       onMove: (move) {
         final next = validateMove(

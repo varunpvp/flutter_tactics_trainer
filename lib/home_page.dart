@@ -12,38 +12,59 @@ class HomePage extends StatelessWidget {
         alignment: Alignment.center,
         padding: EdgeInsets.all(8),
         child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Text(
-              "Tactics Trainer",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                fontSize: 24,
-                color: Colors.white,
-              ),
-            ),
-            SizedBox(height: 8),
-            Text(
-              "Improve your tactics skills with more that 1,700,000 problems",
-              textAlign: TextAlign.center,
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
-              ),
-            ),
-            SizedBox(height: 20),
-            RaisedButton(
-              materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-              onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (_) => PlayTacticsPage(),
+            Expanded(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    "Chess Tactics Trainer",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 24,
+                      color: Colors.white,
+                    ),
                   ),
-                );
-              },
-              child: Text("Start Playing!"),
-            )
+                  SizedBox(height: 8),
+                  Text(
+                    "Improve your skills with more that 1,700,000 tactics",
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                    ),
+                  ),
+                  SizedBox(height: 20),
+                  RaisedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => PlayTacticsPage(),
+                        ),
+                      );
+                    },
+                    child: Text("Start Playing!"),
+                  ),
+                ],
+              ),
+            ),
+            Align(
+              alignment: Alignment.bottomCenter,
+              child: IconButton(
+                icon: Icon(Icons.info, color: Colors.white),
+                onPressed: () {
+                  showAboutDialog(
+                    context: context,
+                    applicationName: "Tactics Trainer",
+                    applicationVersion: 'v1.0',
+                    children: [
+                      Text("Tactics provided by chessblunders.org"),
+                    ],
+                  );
+                },
+              ),
+            ),
           ],
         ),
       ),
