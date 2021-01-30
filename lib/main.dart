@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:tactics_trainer_app/features/tactics/pages/play_tactics_page.dart';
 
 void main() {
@@ -11,7 +12,8 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       title: 'Tactics Trainer',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primaryColor: Color(0xff282622),
+        textTheme: GoogleFonts.procionoTextTheme(),
       ),
       home: PlayTacticsPage(),
     );

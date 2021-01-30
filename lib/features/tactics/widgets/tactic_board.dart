@@ -70,7 +70,7 @@ class TacticBoardState extends State<TacticBoard> {
           if (_solution.isNotEmpty) {
             widget.onCorrect();
 
-            Future.delayed(Duration(milliseconds: 300)).then((value) {
+            Future.delayed(Duration(milliseconds: 500)).then((value) {
               final computerNext = validateMove(
                 _fen,
                 _solution.first,
