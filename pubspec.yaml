@@ -23,7 +23,7 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
-  flutter_stateless_chessboard: ^0.0.1
+  flutter_stateless_chessboard: ^0.0.2
   chess: ^0.6.5
 
 

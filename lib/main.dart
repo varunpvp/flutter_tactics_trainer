@@ -28,7 +28,18 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Tactic> tactics = [];
+  List<Tactic> tactics = [
+    Tactic(
+      fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
+      blunderMove: "c4",
+      solution: [
+        "e5",
+        "Nc3",
+        "Nf6",
+        "Nf3",
+      ],
+    ),
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -49,9 +60,15 @@ class _HomePageState extends State<HomePage> {
 
     return TacticBoard(
       tactic: tactics.first,
-      onSolve: () {},
-      onCorrect: () {},
-      onIncorrect: () {},
+      onSolve: () {
+        print('solved');
+      },
+      onCorrect: () {
+        print('correct!');
+      },
+      onIncorrect: () {
+        print('incorrect');
+      },
     );
   }
 }
@@ -83,6 +100,14 @@ class TacticBoardState extends State<TacticBoard> {
   void initState() {
     _fen = widget.tactic.fen;
     _solution = widget.tactic.solution;
+
+    Future.delayed(Duration(milliseconds: 300)).then((value) {
+      final move = makeMove(_fen, widget.tactic.blunderMove);
+      setState(() {
+        _fen = move['fen'];
+      });
+    });
+
     super.initState();
   }
 
@@ -93,6 +118,7 @@ class TacticBoardState extends State<TacticBoard> {
     return Chessboard(
       fen: _fen,
       size: size.width,
+      orientation: getSideToMove(widget.tactic.fen) == 'w' ? 'b' : 'w',
       onMove: (move) {
         final next = validateMove(
           _fen,
@@ -124,6 +150,10 @@ class TacticBoardState extends State<TacticBoard> {
                 _fen = computerNext['fen'];
                 _solution = computerNext['solution'];
               });
+
+              if (_solution.isEmpty) {
+                widget.onSolve();
+              }
             });
           } else {
             widget.onSolve();

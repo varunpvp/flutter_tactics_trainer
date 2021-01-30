@@ -20,7 +20,7 @@ dynamic makeMove(String fen, dynamic move) {
 dynamic validateMove(String fen, dynamic move, List<String> solution) {
   final next = makeMove(fen, move);
 
-  if (next != null && next['san'] == solution.first) {
+  if (next != null && solution.isNotEmpty && next['san'] == solution.first) {
     return {
       'fen': next['fen'],
       'solution': solution.sublist(1),
@@ -28,4 +28,9 @@ dynamic validateMove(String fen, dynamic move, List<String> solution) {
   }
 
   return null;
+}
+
+String getSideToMove(String fen) {
+  final chess = Chess.fromFEN(fen);
+  return chess.turn == Color.WHITE ? 'w' : 'b';
 }
