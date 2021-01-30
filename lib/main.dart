@@ -1,5 +1,8 @@
+import 'dart:convert';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_stateless_chessboard/flutter_stateless_chessboard.dart';
+import 'package:http/http.dart' as http;
 import 'package:tactics_trainer_app/tactic.dart';
 import 'package:tactics_trainer_app/utils.dart';
 
@@ -28,18 +31,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  List<Tactic> tactics = [
-    Tactic(
-      fen: "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1",
-      blunderMove: "c4",
-      solution: [
-        "e5",
-        "Nc3",
-        "Nf6",
-        "Nf3",
-      ],
-    ),
-  ];
+  List<Tactic> tactics = [];
+
+  @override
+  void initState() {
+    _loadTactic();
+    _loadTactic();
+    super.initState();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -59,9 +58,14 @@ class _HomePageState extends State<HomePage> {
     }
 
     return TacticBoard(
+      key: ValueKey(tactics.first.id),
       tactic: tactics.first,
       onSolve: () {
-        print('solved');
+        setState(() {
+          tactics = tactics.sublist(1);
+        });
+
+        _loadTactic();
       },
       onCorrect: () {
         print('correct!');
@@ -70,6 +74,14 @@ class _HomePageState extends State<HomePage> {
         print('incorrect');
       },
     );
+  }
+
+  void _loadTactic() async {
+    final tactic = await fetchTactic();
+
+    setState(() {
+      tactics.add(tactic);
+    });
   }
 }
 
@@ -80,11 +92,12 @@ class TacticBoard extends StatefulWidget {
   final void Function() onIncorrect;
 
   TacticBoard({
+    Key key,
     @required this.tactic,
     @required this.onCorrect,
     @required this.onIncorrect,
     @required this.onSolve,
-  });
+  }) : super(key: key);
 
   @override
   State<StatefulWidget> createState() {
@@ -101,7 +114,7 @@ class TacticBoardState extends State<TacticBoard> {
     _fen = widget.tactic.fen;
     _solution = widget.tactic.solution;
 
-    Future.delayed(Duration(milliseconds: 300)).then((_) {
+    Future.delayed(Duration(milliseconds: 1000)).then((_) {
       final move = makeMove(_fen, widget.tactic.blunderMove);
       setState(() {
         _fen = move['fen'];
@@ -164,4 +177,26 @@ class TacticBoardState extends State<TacticBoard> {
       },
     );
   }
+}
+
+Future<Tactic> fetchTactic() async {
+  final res = await http.post(
+    "https://chessblunders.org/api/blunder/get",
+    headers: {
+      'Content-Type': 'application/json',
+    },
+    body: json.encode({
+      'type': 'explore',
+    }),
+  );
+
+  final bodyJson = json.decode(res.body);
+  final data = bodyJson['data'];
+
+  return Tactic(
+    id: data['id'],
+    fen: data['fenBefore'],
+    blunderMove: data['blunderMove'],
+    solution: data['forcedLine'].map<String>((move) => move as String).toList(),
+  );
 }

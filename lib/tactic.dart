@@ -1,19 +1,15 @@
+import 'package:flutter/foundation.dart';
+
 class Tactic {
+  final String id;
   final String blunderMove;
   final List<String> solution;
   final String fen;
 
   Tactic({
-    this.fen,
-    this.blunderMove,
-    this.solution,
+    @required this.id,
+    @required this.fen,
+    @required this.blunderMove,
+    @required this.solution,
   });
-
-  factory Tactic.fromJson(json) {
-    return Tactic(
-      fen: json['fen'],
-      blunderMove: json['blunderMove'],
-      solution: json['solution'],
-    );
-  }
 }
