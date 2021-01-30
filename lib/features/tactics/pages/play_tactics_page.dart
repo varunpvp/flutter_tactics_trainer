@@ -41,15 +41,15 @@ class _PlayTacticsPageState extends State<PlayTacticsPage> {
   }
 
   Widget _buildBody() {
+    final theme = Theme.of(context);
+
     if (_tactics.isEmpty) {
       return Container(
-        color: Color(0xff282622),
+        color: theme.primaryColor,
         alignment: Alignment.center,
         child: CircularProgressIndicator(),
       );
     }
-
-    final theme = Theme.of(context);
 
     final tactic = _tactics.first;
 
