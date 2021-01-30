@@ -101,7 +101,7 @@ class TacticBoardState extends State<TacticBoard> {
     _fen = widget.tactic.fen;
     _solution = widget.tactic.solution;
 
-    Future.delayed(Duration(milliseconds: 300)).then((value) {
+    Future.delayed(Duration(milliseconds: 300)).then((_) {
       final move = makeMove(_fen, widget.tactic.blunderMove);
       setState(() {
         _fen = move['fen'];
