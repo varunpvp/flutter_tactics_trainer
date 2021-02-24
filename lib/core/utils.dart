@@ -1,30 +1,24 @@
 import 'package:chess/chess.dart';
+import 'package:flutter_stateless_chessboard/types.dart';
 
-dynamic makeMove(String fen, dynamic move) {
+String makeMove(String fen, dynamic move) {
   final chess = Chess.fromFEN(fen);
 
   if (chess.move(move)) {
-    final fen = chess.fen;
-    final move = chess.undo_move();
-    final san = chess.move_to_san(move);
-
-    return {
-      'fen': fen,
-      'san': san,
-    };
+    return chess.fen;
   }
 
   return null;
 }
 
-dynamic validateMove(String fen, dynamic move, List<String> solution) {
-  final next = makeMove(fen, move);
-
-  if (next != null && solution.isNotEmpty && next['san'] == solution.first) {
-    return {
-      'fen': next['fen'],
-      'solution': solution.sublist(1),
-    };
+String getSanFromShortMove(String fen, ShortMove move) {
+  final chess = Chess.fromFEN(fen);
+  if (chess.move({
+    'from': move.from,
+    'to': move.to,
+    'promotion': move.promotion,
+  })) {
+    return chess.move_to_san(chess.undo_move());
   }
 
   return null;
