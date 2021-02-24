@@ -1,12 +1,13 @@
 import 'dart:convert';
+import 'dart:math';
 
 import 'package:chess_vectors_flutter/chess_vectors_flutter.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_stateless_chessboard/flutter_stateless_chessboard.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:http/http.dart' as http;
 import 'package:tactics_trainer_app/core/utils.dart';
 import 'package:tactics_trainer_app/features/tactics/models/tactic.dart';
-import 'package:tactics_trainer_app/features/tactics/widgets/tactic_board.dart';
 import 'package:wakelock/wakelock.dart';
 
 class PlayTacticsPage extends StatefulWidget {
@@ -19,6 +20,8 @@ class PlayTacticsPage extends StatefulWidget {
 class _PlayTacticsPageState extends State<PlayTacticsPage> {
   List<Tactic> _tactics = [];
   String _state = "side";
+  int _moveIndex = 0;
+  int _solvedMoveIndex = 0;
 
   @override
   void initState() {
@@ -44,6 +47,8 @@ class _PlayTacticsPageState extends State<PlayTacticsPage> {
 
   Widget _buildBody() {
     final theme = Theme.of(context);
+    final media = MediaQuery.of(context).size;
+    final size = min(media.width, media.height);
 
     if (_tactics.isEmpty) {
       return Container(
@@ -54,29 +59,63 @@ class _PlayTacticsPageState extends State<PlayTacticsPage> {
     }
 
     final tactic = _tactics.first;
+    final tacticMove = tactic.moves[_moveIndex];
 
     return Container(
       color: theme.primaryColor,
       child: Column(
         children: [
-          TacticBoard(
-            key: ValueKey(tactic.id),
-            tactic: tactic,
-            onSolve: () {
-              setState(() {
-                _state = "solved";
-              });
-            },
-            onCorrect: () {
-              setState(() {
-                _state = "correct";
-              });
-            },
-            onIncorrect: () {
-              setState(() {
+          Chessboard(
+            fen: tacticMove.fen,
+            size: size,
+            orientation: getSideToMove(tactic.fen) == 'w' ? 'b' : 'w',
+            onMove: (move) {
+              final san = getSanFromShortMove(tacticMove.fen, move);
+
+              print('move');
+              print(san);
+
+              if (san == tacticMove.san) {
+                if (_moveIndex == tactic.moves.length - 1) {
+                  setState(() {
+                    _state = "solved";
+                    _tactics = _tactics.sublist(1);
+                  });
+                } else {
+                  setState(() {
+                    _moveIndex += 1;
+                    _solvedMoveIndex += 1;
+                    _state = "correct";
+                  });
+                }
+              } else {
                 _state = "incorrect";
-              });
+              }
             },
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: IconButton(
+                  icon: Icon(Icons.skip_previous),
+                  onPressed: _moveIndex > 0 ? () {
+                    setState(() {
+                      _moveIndex += 1;
+                    });
+                  } : null,
+                ),
+              ),
+              Expanded(
+                child: IconButton(
+                  icon: Icon(Icons.skip_next),
+                  onPressed: _moveIndex < _solvedMoveIndex ? () {
+                    setState(() {
+                      _moveIndex -= 1;
+                    });
+                  } : null,
+                ),
+              ),
+            ],
           ),
           if (_state == 'side')
             _buildSideToPlay(getSideToMove(tactic.fen) == 'w' ? 'b' : 'w'),
@@ -89,8 +128,7 @@ class _PlayTacticsPageState extends State<PlayTacticsPage> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 Expanded(
-                  child: RaisedButton(
-                    materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                  child: ElevatedButton(
                     onPressed: () {
                       setState(() {
                         _tactics = _tactics.sublist(1);
