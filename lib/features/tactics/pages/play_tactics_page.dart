@@ -72,14 +72,10 @@ class _PlayTacticsPageState extends State<PlayTacticsPage> {
             onMove: (move) {
               final san = getSanFromShortMove(tacticMove.fen, move);
 
-              print('move');
-              print(san);
-
               if (san == tacticMove.san) {
                 if (_moveIndex == tactic.moves.length - 1) {
                   setState(() {
                     _state = "solved";
-                    _tactics = _tactics.sublist(1);
                   });
                 } else {
                   setState(() {
@@ -87,9 +83,24 @@ class _PlayTacticsPageState extends State<PlayTacticsPage> {
                     _solvedMoveIndex += 1;
                     _state = "correct";
                   });
+
+                  if (_moveIndex != tactic.moves.length - 1) {
+                    Future.delayed(Duration(milliseconds: 500)).then((_) {
+                      setState(() {
+                        _moveIndex += 1;
+                        _solvedMoveIndex += 1;
+                      });
+                    });
+                  } else {
+                    setState(() {
+                      _state = "solved";
+                    });
+                  }
                 }
               } else {
-                _state = "incorrect";
+                setState(() {
+                  _state = "incorrect";
+                });
               }
             },
           ),
@@ -97,22 +108,28 @@ class _PlayTacticsPageState extends State<PlayTacticsPage> {
             children: [
               Expanded(
                 child: IconButton(
+                  color: Colors.white,
                   icon: Icon(Icons.skip_previous),
-                  onPressed: _moveIndex > 0 ? () {
-                    setState(() {
-                      _moveIndex += 1;
-                    });
-                  } : null,
+                  onPressed: _moveIndex > 0
+                      ? () {
+                          setState(() {
+                            _moveIndex -= 1;
+                          });
+                        }
+                      : null,
                 ),
               ),
               Expanded(
                 child: IconButton(
+                  color: Colors.white,
                   icon: Icon(Icons.skip_next),
-                  onPressed: _moveIndex < _solvedMoveIndex ? () {
-                    setState(() {
-                      _moveIndex -= 1;
-                    });
-                  } : null,
+                  onPressed: _moveIndex < _solvedMoveIndex
+                      ? () {
+                          setState(() {
+                            _moveIndex += 1;
+                          });
+                        }
+                      : null,
                 ),
               ),
             ],
@@ -133,7 +150,17 @@ class _PlayTacticsPageState extends State<PlayTacticsPage> {
                       setState(() {
                         _tactics = _tactics.sublist(1);
                         _state = "side";
+                        _moveIndex = 0;
+                        _solvedMoveIndex = 0;
                       });
+                      if (_tactics.isNotEmpty) {
+                        Future.delayed(Duration(milliseconds: 1000)).then((_) {
+                          setState(() {
+                            _moveIndex = 1;
+                            _solvedMoveIndex = 1;
+                          });
+                        });
+                      }
                       _loadTactic();
                     },
                     child: Text("Next"),
@@ -151,7 +178,17 @@ class _PlayTacticsPageState extends State<PlayTacticsPage> {
     final tactic = await fetchTactic();
 
     setState(() {
+      if (_tactics.isEmpty) {
+        _state = "side";
+      }
       _tactics.add(tactic);
+    });
+
+    Future.delayed(Duration(milliseconds: 1000)).then((_) {
+      setState(() {
+        _moveIndex = 1;
+        _solvedMoveIndex = 1;
+      });
     });
   }
 
@@ -180,20 +217,37 @@ class _PlayTacticsPageState extends State<PlayTacticsPage> {
   Widget _buildIncorrectMove() {
     return Expanded(
       child: Container(
-        child: Row(
+        child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Image(
-              image: AssetImage("assets/images/incorrect.png"),
-              width: 32,
-              height: 32,
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Image(
+                  image: AssetImage("assets/images/incorrect.png"),
+                  width: 32,
+                  height: 32,
+                ),
+                SizedBox(width: 4),
+                Text(
+                  "Incorrect! Try something else",
+                  style: TextStyle(
+                    color: Colors.white,
+                    fontSize: 18,
+                  ),
+                ),
+              ],
             ),
-            SizedBox(width: 4),
-            Text(
-              "Incorrect! Try something else",
-              style: TextStyle(
-                color: Colors.white,
-                fontSize: 18,
+            Visibility(
+              visible: _tactics.isNotEmpty &&
+                  _solvedMoveIndex < _tactics.first.moves.length - 1,
+              child: TextButton(
+                onPressed: () {
+                  setState(() {
+                    _solvedMoveIndex = _tactics.first.moves.length - 1;
+                  });
+                },
+                child: Text("View solution"),
               ),
             ),
           ],
@@ -213,8 +267,6 @@ class _PlayTacticsPageState extends State<PlayTacticsPage> {
               width: 32,
               height: 32,
             ),
-
-            // WhiteKing(size: 32),
             SizedBox(width: 4),
             Text(
               "Correct! Keep going...",
